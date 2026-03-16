@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Savonière — L'art du savon en poudre</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cream: #F7F4EE;
+    --white: #FFFFFF;
+    --charcoal: #1A1A1A;
+    --mid: #4A4A4A;
+    --light: #8A8A8A;
+    --blue-soft: #C8D8E8;
+    --blue-deep: #3A5F7A;
+    --foam: rgba(200, 220, 240, 0.3);
+    --gold: #B8A07A;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--charcoal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(26,26,26,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, width 0.3s, height 0.3s, border-color 0.3s;
+    transform: translate(-50%, -50%);
+  }
+  body:has(a:hover) .cursor-ring,
+  body:has(button:hover) .cursor-ring { width: 56px; height: 56px; border-color: var(--blue-deep); }
+
+  /* VIDEO OVERLAY */
+  .video-overlay {
+    position: fixed; inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0);
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    transition: background 0.5s ease;
+  }
+  .video-overlay.active {
+    background: rgba(0,0,0,0.92);
+    pointer-events: all;
+  }
+  .video-container {
+    position: relative;
+    width: 90vw; max-width: 1100px;
+    aspect-ratio: 16/9;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.45s ease 0.1s, transform 0.45s ease 0.1s;
+  }
+  .video-overlay.active .video-container {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .video-container video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .video-close {
+    position: absolute;
+    top: -48px; right: 0;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: none;
+    display: flex; align-items: center; gap: 10px;
+    transition: color 0.25s;
+    padding: 0;
+  }
+  .video-close:hover { color: #fff; }
+  .video-close-icon {
+    width: 28px; height: 28px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .video-close:hover .video-close-icon {
+    border-color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.08);
+  }
+  /* Placeholder si pas de vidéo */
+  .video-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, #1A2A3A, #0A1520);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px;
+    color: rgba(255,255,255,0.5);
+  }
+  .video-placeholder-icon {
+    width: 72px; height: 72px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    padding-left: 4px;
+  }
+  .video-placeholder p {
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 48px;
+    background: rgba(247, 244, 238, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(26,26,26,0.06);
+    transition: padding 0.4s ease;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--charcoal);
+    text-decoration: none;
+  }
+  .nav-logo span { font-style: italic; color: var(--blue-deep); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-size: 0.78rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+  .nav-links a:hover { color: var(--charcoal); }
+  .nav-cta {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--charcoal);
+    padding: 10px 24px;
+    border: none;
+    cursor: none;
+    transition: background 0.3s;
+  }
+  .nav-cta:hover { background: var(--blue-deep); }
+
+  /* HAMBURGER */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px; height: 36px;
+    background: none; border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 200;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 100%; height: 1px;
+    background: var(--charcoal);
+    transition: transform 0.35s ease, opacity 0.25s ease;
+    transform-origin: center;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* MOBILE MENU PANEL */
+  .nav-mobile-panel {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(247, 244, 238, 0.97);
+    backdrop-filter: blur(24px);
+    z-index: 150;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .nav-mobile-panel.open { opacity: 1; pointer-events: all; }
+  .nav-mobile-panel a {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-weight: 300;
+    color: var(--charcoal);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    padding: 8px 0;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.4s ease, transform 0.4s ease, color 0.25s;
+  }
+  .nav-mobile-panel.open a { opacity: 1; transform: translateY(0); }
+  .nav-mobile-panel.open a:nth-child(1) { transition-delay: 0.05s; }
+  .nav-mobile-panel.open a:nth-child(2) { transition-delay: 0.12s; }
+  .nav-mobile-panel.open a:nth-child(3) { transition-delay: 0.19s; }
+  .nav-mobile-panel.open a:nth-child(4) { transition-delay: 0.26s; }
+  .nav-mobile-panel a:hover { color: var(--blue-deep); }
+  .nav-mobile-cta {
+    margin-top: 28px;
+    font-family: 'Jost', sans-serif !important;
+    font-size: 0.82rem !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.15em !important;
+    text-transform: uppercase;
+    color: var(--white) !important;
+    background: var(--charcoal);
+    padding: 16px 40px;
+  }
+  .nav-mobile-cta:hover { background: var(--blue-deep) !important; color: var(--white) !important; }
+  .nav-mobile-close {
+    position: absolute;
+    top: 24px; right: 24px;
+    width: 44px; height: 44px;
+    background: none; border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-mobile-close span {
+    position: absolute;
+    width: 22px; height: 1px;
+    background: var(--charcoal);
+    display: block;
+  }
+  .nav-mobile-close span:nth-child(1) { transform: rotate(45deg); }
+  .nav-mobile-close span:nth-child(2) { transform: rotate(-45deg); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 24px 80px;
+  }
+
+  /* Animated background bubbles */
+  .bubbles {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), rgba(200,220,240,0.3));
+    box-shadow: inset -4px -4px 12px rgba(255,255,255,0.6), inset 4px 4px 8px rgba(200,220,240,0.4), 0 4px 20px rgba(58,95,122,0.08);
+    animation: floatBubble linear infinite;
+  }
+  .bubble:nth-child(1)  { width:117px; height:117px; left:8%;  animation-duration:18s; animation-delay:-3s; }
+  .bubble:nth-child(2)  { width:65px;  height:65px;  left:20%; animation-duration:22s; animation-delay:-8s; }
+  .bubble:nth-child(3)  { width:182px; height:182px; left:35%; animation-duration:26s; animation-delay:-1s; }
+  .bubble:nth-child(4)  { width:91px;  height:91px;  left:55%; animation-duration:20s; animation-delay:-12s; }
+  .bubble:nth-child(5)  { width:143px; height:143px; left:70%; animation-duration:24s; animation-delay:-5s; }
+  .bubble:nth-child(6)  { width:52px;  height:52px;  left:85%; animation-duration:16s; animation-delay:-9s; }
+  .bubble:nth-child(7)  { width:104px; height:104px; left:92%; animation-duration:21s; animation-delay:-2s; }
+  .bubble:nth-child(8)  { width:78px;  height:78px;  left:45%; animation-duration:19s; animation-delay:-15s; }
+  .bubble:nth-child(9)  { width:117px; height:117px; left:12%; animation-duration:23s; animation-delay:-10s; }
+  .bubble:nth-child(10) { width:65px;  height:65px;  left:62%; animation-duration:17s; animation-delay:-6s; }
+  .bubble:nth-child(11) { width:52px;  height:52px;  left:78%; animation-duration:15s; animation-delay:-13s; }
+  .bubble:nth-child(12) { width:91px;  height:91px;  left:30%; animation-duration:20s; animation-delay:-4s; }
+
+  @keyframes floatBubble {
+    0%   { transform: translateY(110vh) scale(0.8); opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.3s;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 1.1s ease forwards 0.5s;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--blue-deep);
+    display: block;
+  }
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-weight: 200;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 1.1s ease forwards 0.75s;
+  }
+  .hero-actions {
+    display: flex; gap: 16px; align-items: center;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1s;
+  }
+  .btn-primary {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: var(--charcoal);
+    padding: 16px 36px;
+    border: none;
+    cursor: none;
+    transition: background 0.35s, transform 0.2s;
+  }
+  .btn-primary:hover { background: var(--blue-deep); transform: translateY(-1px); }
+  .btn-link {
+    font-size: 0.82rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(74,74,74,0.3);
+    padding-bottom: 2px;
+    transition: color 0.25s, border-color 0.25s;
+  }
+  .btn-link:hover { color: var(--blue-deep); border-color: var(--blue-deep); }
+
+  /* Hero product visual */
+  .hero-product {
+    margin-top: 80px;
+    position: relative;
+    display: inline-block;
+    opacity: 0;
+    animation: fadeUp 1.2s ease forwards 1.2s;
+  }
+  .product-can {
+    width: 200px; height: 220px;
+    background: linear-gradient(120deg, #d4d4d4 0%, #f5f5f5 30%, #e0e0e0 55%, #c8c8c8 75%, #e8e8e8 100%);
+    border-radius: 12px;
+    position: relative;
+    box-shadow:
+      0 40px 100px rgba(0,0,0,0.22),
+      0 8px 24px rgba(0,0,0,0.12),
+      inset 2px 0 6px rgba(255,255,255,0.6),
+      inset -2px 0 6px rgba(0,0,0,0.08);
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .product-can::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 16px;
+    background: linear-gradient(180deg, #b0b0b0 0%, #d8d8d8 100%);
+    border-radius: 12px 12px 0 0;
+  }
+  .product-can::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(105deg, rgba(255,255,255,0.35) 0%, transparent 40%, rgba(0,0,0,0.06) 100%);
+    border-radius: 12px;
+    pointer-events: none;
+  }
+  .can-label {
+    position: absolute; top: 70px; left: 16px; right: 16px;
+    text-align: center;
+  }
+  .can-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--charcoal);
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .can-type {
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    display: block;
+    margin-bottom: 20px;
+  }
+  .can-wave {
+    width: 100%; height: 40px;
+    background: linear-gradient(90deg, transparent, rgba(200,220,240,0.5), transparent);
+    border-radius: 50%;
+    margin: 8px 0;
+  }
+  .can-weight {
+    font-size: 0.68rem;
+    color: var(--light);
+    letter-spacing: 0.15em;
+    font-weight: 300;
+  }
+  .product-shadow {
+    width: 160px; height: 20px;
+    background: radial-gradient(ellipse, rgba(58,95,122,0.2) 0%, transparent 70%);
+    margin: 16px auto 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION base */
+  section { padding: 120px 48px; }
+
+  /* FEATURE STRIP */
+  .feature-strip {
+    background: var(--charcoal);
+    color: var(--white);
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0;
+  }
+  .feature-item {
+    flex: 1;
+    max-width: 280px;
+    text-align: center;
+    padding: 56px 40px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    transition: background 0.3s;
+  }
+  .feature-item:last-child { border-right: none; }
+  .feature-item:hover { background: rgba(255,255,255,0.04); }
+  .feature-icon {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    display: block;
+    filter: grayscale(0.3);
+  }
+  .feature-label {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .feature-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.4;
+  }
+
+  /* STORY SECTION */
+  .story {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 140px 48px;
+  }
+  .story-label {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .story-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 28px;
+    color: var(--charcoal);
+  }
+  .story-title em { font-style: italic; color: var(--blue-deep); }
+  .story-body {
+    font-size: 1rem;
+    font-weight: 200;
+    line-height: 1.85;
+    color: var(--mid);
+    margin-bottom: 16px;
+  }
+  .story-visual {
+    position: relative;
+    height: 480px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #E8F2F8 0%, #F7F4EE 50%, #D4E6F0 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .story-visual::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(200,220,240,0.6) 0%, transparent 60%);
+  }
+  .story-powder {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  .powder-pile {
+    width: 200px; height: 80px;
+    background: radial-gradient(ellipse at 50% 30%, #FFFFFF 0%, #EAF3F8 40%, #C8D8E8 100%);
+    border-radius: 50% 50% 30% 30%;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(58,95,122,0.15), inset 0 -4px 8px rgba(58,95,122,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .powder-pile::after {
+    content: '';
+    position: absolute; top: 10px; left: 20%; right: 20%; height: 2px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 50%;
+    filter: blur(2px);
+  }
+  .powder-text {
+    margin-top: 24px;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--blue-deep);
+    letter-spacing: 0.05em;
+  }
+
+  /* SCENT SECTION */
+  .scents {
+    background: var(--white);
+    text-align: center;
+    padding: 120px 48px;
+  }
+  .scents-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .scents-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .scents-title em { font-style: italic; }
+  .scents-sub {
+    font-size: 0.95rem;
+    font-weight: 200;
+    color: var(--light);
+    margin-bottom: 80px;
+    letter-spacing: 0.04em;
+  }
+  .scents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .scent-card {
+    padding: 56px 40px;
+    background: var(--cream);
+    transition: background 0.35s, transform 0.35s;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .scent-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: var(--blue-deep);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.4s ease;
+    z-index: 0;
+  }
+  .scent-card:hover::before { transform: scaleY(1); }
+  .scent-card:hover .scent-name,
+  .scent-card:hover .scent-note { color: var(--white); }
+  .scent-card:hover .scent-dot { background: rgba(255,255,255,0.3); }
+  .scent-dot {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    position: relative;
+    z-index: 1;
+    transition: background 0.4s;
+  }
+  .scent-dot.lavande { background: linear-gradient(135deg, #D4C8E8, #E8D8F0); }
+  .scent-dot.menthe  { background: linear-gradient(135deg, #C8E8D4, #D8F0E0); }
+  .scent-dot.citron  { background: linear-gradient(135deg, #F0E8C0, #F8F0D0); }
+  .scent-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+    transition: color 0.4s;
+  }
+  .scent-note {
+    font-size: 0.78rem;
+    font-weight: 200;
+    color: var(--light);
+    letter-spacing: 0.1em;
+    position: relative; z-index: 1;
+    transition: color 0.4s;
+  }
+
+  /* SPECS / TECH */
+  .specs {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 120px 48px;
+  }
+  .specs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 60px;
+    border-bottom: 1px solid rgba(26,26,26,0.1);
+    padding-bottom: 32px;
+  }
+  .specs-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 300;
+  }
+  .specs-sub { font-size: 0.85rem; font-weight: 200; color: var(--light); }
+  .specs-rows { display: flex; flex-direction: column; gap: 0; }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(26,26,26,0.06);
+    transition: background 0.2s;
+  }
+  .spec-key {
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+    flex: 0 0 200px;
+  }
+  .spec-val {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--charcoal);
+    flex: 1;
+    text-align: right;
+  }
+
+  /* BUY SECTION */
+  .buy {
+    background: linear-gradient(180deg, #1A1A1A 0%, #2A3A4A 100%);
+    text-align: center;
+    padding: 160px 48px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .buy::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(58,95,122,0.4) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .buy-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue-soft);
+    margin-bottom: 20px;
+    display: block;
+    position: relative; z-index: 1;
+  }
+  .buy-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    position: relative; z-index: 1;
+  }
+  .buy-title em { font-style: italic; color: var(--blue-soft); }
+  .buy-price {
+    font-size: 1rem;
+    font-weight: 200;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.15em;
+    margin-bottom: 48px;
+    position: relative; z-index: 1;
+  }
+  .buy-price strong {
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--white);
+    margin-left: 8px;
+  }
+  .buy-actions {
+    display: flex; gap: 16px; justify-content: center; align-items: center;
+    position: relative; z-index: 1;
+  }
+  .btn-white {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--charcoal);
+    background: var(--white);
+    padding: 18px 44px;
+    border: none;
+    cursor: none;
+    transition: background 0.3s, color 0.3s, transform 0.2s;
+  }
+  .btn-white:hover { background: var(--blue-soft); transform: translateY(-1px); }
+  .btn-outline-white {
+    font-size: 0.82rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    padding-bottom: 2px;
+    transition: color 0.25s, border-color 0.25s;
+    cursor: none;
+  }
+  .btn-outline-white:hover { color: var(--white); border-color: var(--white); }
+
+  /* FOOTER */
+  footer {
+    background: var(--charcoal);
+    color: rgba(255,255,255,0.4);
+    padding: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+  }
+  .footer-logo span { font-style: italic; color: var(--blue-soft); }
+  .footer-links { display: flex; gap: 28px; }
+  .footer-links a {
+    color: rgba(255,255,255,0.35);
+    text-decoration: none;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    transition: color 0.25s;
+  }
+  .footer-links a:hover { color: rgba(255,255,255,0.8); }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── TABLET (≤ 1024px) ── */
+  @media (max-width: 1024px) {
+    nav { padding: 18px 32px; }
+    .nav-links { gap: 24px; }
+    .story { gap: 48px; padding: 100px 32px; }
+    .story-visual { height: 380px; }
+    .specs { padding: 100px 32px; }
+    .spec-key { flex: 0 0 160px; }
+    .scents-grid { gap: 2px; }
+    section { padding: 100px 32px; }
+    .buy { padding: 120px 32px; }
+    footer { padding: 40px 32px; }
+  }
+
+  /* ── MOBILE (≤ 768px) ── */
+  @media (max-width: 768px) {
+    /* Curseur désactivé sur mobile (pas de souris) */
+    .cursor, .cursor-ring { display: none; }
+    body { cursor: auto; }
+    a, button { cursor: pointer; }
+
+    /* Nav mobile */
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .nav-cta { display: none; }
+    .nav-hamburger { display: flex; }
+    .nav-mobile-panel { display: flex; }
+
+    /* Hero */
+    .hero { padding: 100px 20px 60px; min-height: 100svh; }
+    .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.18em; }
+    .hero-sub { font-size: 0.95rem; margin-bottom: 36px; }
+    .hero-actions { flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+    .btn-primary { width: 100%; max-width: 320px; text-align: center; padding: 16px 24px; cursor: pointer; }
+    .btn-link { cursor: pointer; }
+    .product-can { width: 170px; height: 220px; }
+    .can-brand { font-size: 1.2rem; }
+    .hero-product { margin-top: 52px; }
+
+    /* Feature strip */
+    .feature-strip { flex-direction: column; }
+    .feature-item {
+      border-right: none;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 36px 28px;
+      max-width: 100%;
+    }
+    .feature-item:last-child { border-bottom: none; }
+
+    /* Story */
+    .story {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 80px 20px;
+    }
+    .story-visual { height: 260px; order: -1; }
+    .powder-pile { width: 150px; height: 60px; }
+
+    /* Scents */
+    .scents { padding: 80px 20px; }
+    .scents-grid { grid-template-columns: 1fr; gap: 2px; }
+    .scent-card { padding: 40px 28px; }
+
+    /* Specs */
+    .specs { padding: 80px 20px; }
+    .specs-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .spec-row { flex-direction: column; align-items: flex-start; gap: 4px; padding: 18px 0; }
+    .spec-key { flex: none; }
+    .spec-val { text-align: left; font-size: 0.9rem; color: var(--mid); }
+
+    /* Buy */
+    .buy { padding: 100px 20px; }
+    .buy-actions { flex-direction: column; align-items: center; gap: 20px; }
+    .btn-white { width: 100%; max-width: 320px; text-align: center; cursor: pointer; }
+    .btn-outline-white { cursor: pointer; }
+
+    /* Footer */
+    footer {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      padding: 32px 20px;
+    }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+
+    /* Video overlay */
+    .video-container { width: 96vw; }
+    .video-close { font-size: 0.65rem; cursor: pointer; }
+  }
+
+  /* ── PETIT MOBILE (≤ 400px) ── */
+  @media (max-width: 400px) {
+    .hero-title { font-size: 3rem; }
+    .product-can { width: 140px; height: 180px; }
+    .can-brand { font-size: 1rem; }
+    nav { padding: 14px 16px; }
+    .nav-logo { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- VIDEO OVERLAY -->
+<div class="video-overlay" id="videoOverlay">
+  <div class="video-container">
+    <button class="video-close" id="videoClose">
+      <span class="video-close-icon">✕</span>
+      Fermer
+    </button>
+    <!-- Remplace "puranova-video.mp4" par le nom de ton fichier -->
+    <video id="mainVideo" controls playsinline>
+      <source src="puranova-video.mp4" type="video/mp4">
+    </video>
+    <div class="video-placeholder" id="videoPlaceholder" style="display:none">
+      <div class="video-placeholder-icon">▶</div>
+      <p>puranova-video.mp4</p>
+      <p style="font-size:0.65rem;opacity:0.5;margin-top:4px">Place ton fichier .mp4 dans le même dossier que le HTML</p>
+    </div>
+  </div>
+</div>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- MOBILE MENU PANEL -->
+<div class="nav-mobile-panel" id="mobilePanel">
+  <button class="nav-mobile-close" id="mobileClose" aria-label="Fermer le menu">
+    <span></span><span></span>
+  </button>
+  <a href="#histoire" class="mobile-link">Histoire</a>
+  <a href="#parfums" class="mobile-link">Parfums</a>
+  <a href="#composition" class="mobile-link">Composition</a>
+  <a href="#acheter" class="mobile-link">Acheter</a>
+  <a href="#" class="nav-mobile-cta mobile-link" id="mobileCta">Découvrir</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Maison <span>Savonière</span></a>
+  <ul class="nav-links">
+    <li><a href="#histoire">Histoire</a></li>
+    <li><a href="#parfums">Parfums</a></li>
+    <li><a href="#composition">Composition</a></li>
+    <li><a href="#acheter">Acheter</a></li>
+  </ul>
+  <button class="nav-cta" id="navCta">Découvrir</button>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="bubbles" aria-hidden="true">
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+  </div>
+
+  <p class="hero-eyebrow">Savon en poudre · Formule Artisanale</p>
+  <h1 class="hero-title">
+    Propre,<br>
+    <em>naturellement.</em>
+  </h1>
+  <p class="hero-sub">L'art du savon artisanal, réinventé en poudre.</p>
+  <div class="hero-actions">
+    <button class="btn-primary">Commander — 12,90 €</button>
+    <a href="#histoire" class="btn-link">En savoir plus</a>
+  </div>
+
+  <div class="hero-product">
+    <div class="product-can">
+      <div class="can-label">
+        <span class="can-brand">Maison<br><small style="font-size:0.7rem;letter-spacing:0.12em;font-style:italic">Savonière</small></span>
+        <span class="can-type">Savon en Poudre · Main</span>
+        <div class="can-wave"></div>
+        <div class="can-wave" style="opacity:0.5;margin-top:-20px;transform:scaleX(0.7)"></div>
+        <span class="can-weight">200 g</span>
+      </div>
+    </div>
+    <div class="product-shadow"></div>
+  </div>
+</section>
+
+<!-- FEATURE STRIP -->
+<div class="feature-strip">
+  <div class="feature-item">
+    <span class="feature-icon">🌿</span>
+    <span class="feature-label">Composition</span>
+    <span class="feature-value">100% ingrédients<br>d'origine naturelle</span>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">♻️</span>
+    <span class="feature-label">Emballage</span>
+    <span class="feature-value">Papier kraft<br>recyclé & recyclable</span>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">🌡️</span>
+    <span class="feature-label">Performance</span>
+    <span class="feature-value">Mousse douce<br>sur toutes peaux</span>
+  </div>
+  <div class="feature-item">
+    <span class="feature-icon">🐇</span>
+    <span class="feature-label">Éthique</span>
+    <span class="feature-value">Non testé<br>sur les animaux</span>
+  </div>
+</div>
+
+<!-- STORY -->
+<div class="story" id="histoire">
+  <div class="reveal">
+    <span class="story-label">Notre savoir-faire</span>
+    <h2 class="story-title">Ce n'est pas<br>juste du savon.<br><em>C'est un geste.</em></h2>
+    <p class="story-body">Maison Savonière est née d'une conviction simple : prendre soin de ses mains ne devrait pas coûter la santé de la planète. Chaque granule de savon est formulée avec le soin d'un artisan.</p>
+    <p class="story-body">Notre savon en poudre se dissout au contact de l'eau pour libérer une mousse onctueuse. Formulé avec du Sodium Coco Sulfate d'origine naturelle, du Sorbitol hydratant et de la Silice douce — juste ce dont vos mains ont besoin, rien de plus.</p>
+  </div>
+  <div class="reveal story-visual">
+    <div class="story-powder">
+      <div class="powder-pile"></div>
+      <p class="powder-text">Chaque grain prend soin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SCENTS -->
+<section class="scents" id="parfums">
+  <span class="scents-eyebrow reveal">Parfums Naturels</span>
+  <h2 class="scents-title reveal">Choisissez votre<br><em>moment.</em></h2>
+  <p class="scents-sub reveal">Trois fragrances naturelles. Une seule promesse : la douceur.</p>
+  <div class="scents-grid">
+    <div class="scent-card reveal">
+      <div class="scent-dot lavande"></div>
+      <p class="scent-name">Lavande Haute</p>
+      <p class="scent-note">HE Lavande · Douceur · Relaxant</p>
+    </div>
+    <div class="scent-card reveal">
+      <div class="scent-dot menthe"></div>
+      <p class="scent-name">Menthe Fraîche</p>
+      <p class="scent-note">HE Menthe · Fraîcheur · Tonifiant</p>
+    </div>
+    <div class="scent-card reveal">
+      <div class="scent-dot citron"></div>
+      <p class="scent-name">Citron Blanc</p>
+      <p class="scent-note">HE Citron · Zeste · Purifiant</p>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<div class="specs" id="composition">
+  <div class="specs-header reveal">
+    <h2 class="specs-title">Composition<br>& Formule</h2>
+    <span class="specs-sub">Recette artisanale · Certifiée Cosmos Natural</span>
+  </div>
+  <div class="specs-rows">
+    <div class="spec-row reveal"><span class="spec-key">Format</span><span class="spec-val">Boîte métal recyclable · 200 g</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Poids net</span><span class="spec-val">200 g</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Utilisations</span><span class="spec-val">~100 lavages (dose : 2 g)</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Températures</span><span class="spec-val">Eau froide ou tiède</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Type de peau</span><span class="spec-val">Toutes peaux, y compris sensibles</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Composition INCI</span><span class="spec-val">Sodium Coco Sulfate · Cocamidopropyl Betaine · Sodium Cocoyl Glutamate · Sorbitol · Silica · Xanthan Gum · Sodium Benzoate · Citric Acid · Parfum · Ascorbic Acid</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Certifications</span><span class="spec-val">Cosmos Natural · Vegan · Cruelty Free</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Emballage</span><span class="spec-val">Papier kraft non blanchi, encre végétale</span></div>
+    <div class="spec-row reveal"><span class="spec-key">Origine</span><span class="spec-val">Formulé & fabriqué à la main en France</span></div>
+  </div>
+</div>
+
+<!-- BUY -->
+<section class="buy" id="acheter">
+  <span class="buy-label">Maison Savonière — Disponible maintenant</span>
+  <h2 class="buy-title">Le soin<br><em>à sa juste essence.</em></h2>
+  <p class="buy-price">À partir de<strong>12,90 €</strong> · Livraison offerte dès 30 €</p>
+  <div class="buy-actions">
+    <button class="btn-white">Ajouter au panier</button>
+    <a href="#" class="btn-outline-white">Voir les formats</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">Maison <span>Savonière</span></span>
+  <div class="footer-links">
+    <a href="#">Mentions légales</a>
+    <a href="#">Confidentialité</a>
+    <a href="#">Contact</a>
+    <a href="#">FAQ</a>
+  </div>
+  <span>© 2026 Maison Savonière</span>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+
+  // Video overlay
+  const overlay = document.getElementById('videoOverlay');
+  const video = document.getElementById('mainVideo');
+  const placeholder = document.getElementById('videoPlaceholder');
+  const closeBtn = document.getElementById('videoClose');
+  const navCta = document.getElementById('navCta');
+  const hamburger = document.getElementById('hamburger');
+  const mobilePanel = document.getElementById('mobilePanel');
+  const mobileCta = document.getElementById('mobileCta');
+
+  // Hamburger toggle
+  function toggleMenu(open) {
+    hamburger.classList.toggle('open', open);
+    mobilePanel.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+  hamburger.addEventListener('click', () => toggleMenu(!hamburger.classList.contains('open')));
+
+  // Close X button
+  document.getElementById('mobileClose').addEventListener('click', () => toggleMenu(false));
+
+  // Close menu on link click
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => toggleMenu(false));
+  });
+
+  // Mobile CTA opens video
+  mobileCta.addEventListener('click', (e) => { e.preventDefault(); toggleMenu(false); setTimeout(openVideo, 350); });
+
+  // Vérifie si la vidéo est accessible
+  video.addEventListener('error', () => {
+    video.style.display = 'none';
+    placeholder.style.display = 'flex';
+  });
+
+  function openVideo() {
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (video.style.display !== 'none') video.play();
+  }
+
+  function closeVideo() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    video.pause();
+    video.currentTime = 0;
+  }
+
+  navCta.addEventListener('click', openVideo);
+  closeBtn.addEventListener('click', closeVideo);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeVideo(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVideo(); });
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.15 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
